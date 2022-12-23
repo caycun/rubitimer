@@ -69,7 +69,9 @@ fn run_app<B: Backend>(
 ) -> io::Result<()> {
     loop {
               terminal.draw(|f| ui(f, &mut app))?;
-            if let Event::Key(key) = event::read()? {
+            
+            if poll(time::Duration::from_millis(100))? {
+     if let Event::Key(key) = event::read()? {
                 if let KeyCode::Char('q') = key.code {
                     return Ok(());
                 } else if let KeyCode::Char('s') = key.code {
@@ -81,54 +83,19 @@ fn run_app<B: Backend>(
                         _ => ()
                     }
                      } else {
-                    app.display = String::from(format!("{:?}", app.stopwatch.duration()));
+                    app.display = String::from(format!("{:?}", app.stopwatch.duration().unwrap()));
                     app.started = true;
-                    stopwatch(&mut app);
-                    while app.started {
-                        terminal.draw(|f| {
-
-      let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .margin(5)
-        .constraints(
-            [
-                Constraint::Percentage(25),
-                Constraint::Percentage(25),
-                Constraint::Percentage(25),
-                Constraint::Percentage(25),
-                Constraint::Percentage(25),
-            ]
-            .as_ref(),
-        )
-        .split(f.size());
-
-     let paragraph = Paragraph::new(String::from(format!("Time: {:?}", app.stopwatch.duration()))).alignment(Alignment::Center);
-     f.render_widget(paragraph, chunks[2]);
-
-
-
-                        })?;
-
-            if poll(time::Duration::from_millis(100))? {
-                if let Event::Key(key) = event::read()? {
-                    if let KeyCode::Char('s') = key.code {
-                                app.started = false;
-
-                                break
-                            }
-                        }
-
-                        }
-                   };
+                    stopwatch(&mut app); 
                 }
-                }
-            } 
             }
+    }
+    }
+    }
 }
 
 fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) { 
       if app.started {
-            app.display = String::from(format!("Time: {:?}", app.stopwatch.duration()))
+            app.display = String::from(format!("Time: {:?}", app.stopwatch.duration().unwrap()))
         }
 
       let chunks = Layout::default()
@@ -149,3 +116,5 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
      let paragraph = Paragraph::new(&*app.display).alignment(Alignment::Center);
      f.render_widget(paragraph, chunks[2]);
 }
+
+
