@@ -1,13 +1,13 @@
-use std::time::{Instant, Duration};
+use std::time::{Duration, Instant};
 
 pub struct StopWatch {
-    pub time_started: Option<Instant>
+    pub time_started: Option<Instant>,
 }
 
 impl StopWatch {
     pub fn start() -> Self {
         Self {
-            time_started: Some(Instant::now())
+            time_started: Some(Instant::now()),
         }
     }
     pub fn duration(&self) -> Option<Duration> {
