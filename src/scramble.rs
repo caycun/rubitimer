@@ -1,18 +1,13 @@
-use rand::{thread_rng, Rng};
+use rand::thread_rng;
+use rand::seq::SliceRandom;
 
 pub fn scramble() -> Vec<&'static str> {
-    let rotations = vec![
-        "F", "D", "U", "L", "R", "F'", "D'", "U'", "L'", "R'", "F2", "D2", "U2", "L2", "R2",
-    ];
-    let mut moves = vec![];
-    for _i in 1..15 {
-        moves.push(rotations[gen_number() as usize]);
-    }
-    moves
+    (1..15).map(|_| gen_str()).collect()
 }
 
-fn gen_number() -> u32 {
-    let mut rng = thread_rng();
-    let x: u32 = rng.gen_range(0..14);
-    return x;
+fn gen_str() -> &'static str {
+    const ROTATIONS: &[&str] = &[
+        "F", "D", "U", "L", "R", "F'", "D'", "U'", "L'", "R'", "F2", "D2", "U2", "L2", "R2",
+    ];
+    ROTATIONS.choose(&mut thread_rng()).unwrap()
 }
