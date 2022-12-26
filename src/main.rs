@@ -3,7 +3,7 @@ mod stopwatch;
 use crate::scramble::scramble;
 use crate::stopwatch::StopWatch;
 use crossterm::{
-    event::{self, poll, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{self, poll, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -71,35 +71,36 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
     loop {
         terminal.draw(|f| ui(f, &mut app))?;
         if poll(time::Duration::from_millis(100))? {
-            if let Event::Key(key) = event::read()? {
-                if let KeyCode::Char('q') = key.code {
-                    return Ok(());
-                } else if let KeyCode::Char(' ') = key.code {
-                    if app.started {
-                        app.started = false;
-                        let duration = end(&mut app);
-                        match duration {
-                            Some(dur) => {
-                                app.scramble = scramble();
-                                app.display = String::from(format!("{:?}", dur));
-                            }
-                            _ => (),
-                        }
-                    } else {
-                        app.display =
-                            String::from(format!("{:?}", app.stopwatch.duration().unwrap()));
-                        app.started = true;
-                        stopwatch(&mut app);
-                    }
+            match event::read()? {
+    Event::Key(KeyEvent { code: KeyCode::Char('q'), .. }) => {
+        return Ok(());
+    },
+    Event::Key(KeyEvent { code: KeyCode::Char(' '), .. }) => {
+        if app.started {
+            app.started = false;
+            let duration = end(&mut app);
+            match duration {
+                Some(dur) => {
+                    app.scramble = scramble();
+                    app.display = format!("{:?}", dur);
                 }
+                _ => (),
             }
+        } else {
+            app.display = format!("{:?}", app.stopwatch.duration().unwrap());
+            app.started = true;
+            stopwatch(&mut app);
         }
+    },
+    _ => ()
+}
+                   }
     }
 }
 
 fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     if app.started {
-        app.display = String::from(format!("{:?}", app.stopwatch.duration().unwrap()))
+        app.display = format!("{:?}", app.stopwatch.duration().unwrap())
     }
 
     let chunks = Layout::default()
