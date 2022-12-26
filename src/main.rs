@@ -105,16 +105,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .margin(5)
-        .constraints(
-            [
-                Constraint::Percentage(25),
-                Constraint::Percentage(25),
-                Constraint::Percentage(25),
-                Constraint::Percentage(25),
-                Constraint::Percentage(25),
-            ]
-            .as_ref(),
-        )
+        .constraints(vec![Constraint::Percentage(25); 5])
         .split(f.size());
 
     let paragraph = Paragraph::new(&*app.display).alignment(Alignment::Center);
