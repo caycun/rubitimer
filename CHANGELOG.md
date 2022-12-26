@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/kencun/rubitimer/compare/v0.1.0...v0.2.0) (2022-12-26)
+
+
+### Features
+
+* added a bar chart that displays past time. ([78bfb28](https://github.com/kencun/rubitimer/commit/78bfb28f984eabe742f1887505801e9968e1a98d))
+
 ## 0.1.0 (2022-12-26)
 
 
