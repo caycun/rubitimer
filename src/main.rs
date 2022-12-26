@@ -1,5 +1,7 @@
+mod barchart;
 mod scramble;
 mod stopwatch;
+use crate::barchart::make_chart;
 use crate::scramble::scramble;
 use crate::stopwatch::StopWatch;
 use crossterm::{
@@ -8,7 +10,6 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use std::io;
-use std::time::Duration;
 use std::{thread, time};
 use tui::{
     backend::{Backend, CrosstermBackend},
@@ -17,11 +18,13 @@ use tui::{
     Frame, Terminal,
 };
 
-struct App {
+pub struct App {
     started: bool,
     stopwatch: StopWatch,
     display: String,
     scramble: Vec<&'static str>,
+    time_data: Vec<u64>,
+    show_chart: bool
 }
 
 fn stopwatch(app: &mut App) {
@@ -30,7 +33,7 @@ fn stopwatch(app: &mut App) {
     thread::sleep(time::Duration::from_millis(100));
 }
 
-fn end(app: &mut App) -> Option<Duration> {
+fn end(app: &mut App) -> Option<u64> {
     let sw = &app.stopwatch;
     sw.duration()
 }
@@ -47,6 +50,8 @@ fn main() -> Result<(), io::Error> {
         stopwatch: StopWatch { time_started: None },
         display: String::from("Press spacebar to start and stop."),
         scramble: scramble(),
+        time_data: vec![],
+        show_chart: false
     };
 
     let res = run_app(&mut terminal, app);
@@ -69,11 +74,17 @@ fn main() -> Result<(), io::Error> {
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
     loop {
+        while app.show_chart {
+        make_chart(terminal, &mut app);
+        }
         terminal.draw(|f| ui(f, &mut app))?;
         if poll(time::Duration::from_millis(100))? {
             match event::read()? {
     Event::Key(KeyEvent { code: KeyCode::Char('q'), .. }) => {
         return Ok(());
+    },
+    Event::Key(KeyEvent { code: KeyCode::Char('s'), .. }) => {
+                app.show_chart = true;
     },
     Event::Key(KeyEvent { code: KeyCode::Char(' '), .. }) => {
         if app.started {
@@ -83,6 +94,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                 Some(dur) => {
                     app.scramble = scramble();
                     app.display = format!("{:?}", dur);
+                    app.time_data.insert(0, dur);
                 }
                 _ => (),
             }

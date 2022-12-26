@@ -10,10 +10,10 @@ impl StopWatch {
             time_started: Some(Instant::now()),
         }
     }
-    pub fn duration(&self) -> Option<Duration> {
+    pub fn duration(&self) -> Option<u64> {
         match self.time_started {
-            Some(time_started) => Some(time_started.elapsed()),
-            None => Some(Instant::now().elapsed()),
+            Some(time_started) => Some(time_started.elapsed().as_secs()),
+            None => Some(Instant::now().elapsed().as_secs()),
         }
     }
 }
